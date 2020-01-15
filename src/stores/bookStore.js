@@ -1,9 +1,16 @@
 import { decorate, observable, computed } from "mobx";
 import axios from "axios";
 
+import authorStore from "../stores/authorStore";
+
 const instance = axios.create({
   baseURL: "https://the-index-api.herokuapp.com/api/"
 });
+instance.defaults.headers.common.Authorization =
+  "jwt eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxODQsInVzZXJuYW1lIjoidGVzdGluZ2ciLCJleHAiOjE1NzkxMTkxNjcsImVtYWlsIjoidGVzdEBpbmdnLmNvbSJ9.bfFN7iFi6oUGDOOIUfQVLs3JLcVnSgdqcELfbpOblVI";
+function errToArray(err) {
+  return Object.keys(err).map(key => `${key}: ${err[key]}`);
+}
 
 class BookStore {
   books = [];
@@ -31,6 +38,26 @@ class BookStore {
 
   getBooksByColor = color =>
     this.filteredBooks.filter(book => book.color === color);
+
+  addBook = async (newBook, author) => {
+    try {
+      const newAuth = [author.id];
+      const newInput = {
+        title: newBook.title,
+        color: newBook.color,
+        authors: newAuth
+      };
+      const res = await instance.post("books/", newInput);
+      const book = res.data;
+      this.books.unshift(book);
+      let auth = authorStore.getAuthorById(author.id);
+      auth.books.push(book.id);
+
+      this.errors = null;
+    } catch (err) {
+      this.errors = errToArray(err.response.data);
+    }
+  };
 }
 
 decorate(BookStore, {

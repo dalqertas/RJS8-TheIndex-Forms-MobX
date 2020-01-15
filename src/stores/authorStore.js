@@ -8,7 +8,8 @@ const instance = axios.create({
 function errToArray(err) {
   return Object.keys(err).map(key => `${key}: ${err[key]}`);
 }
-
+instance.defaults.headers.common.Authorization =
+  "jwt eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxODQsInVzZXJuYW1lIjoidGVzdGluZ2ciLCJleHAiOjE1NzkxMTkxNjcsImVtYWlsIjoidGVzdEBpbmdnLmNvbSJ9.bfFN7iFi6oUGDOOIUfQVLs3JLcVnSgdqcELfbpOblVI";
 class AuthorStore {
   authors = [];
 
